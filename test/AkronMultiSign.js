@@ -29,8 +29,7 @@ describe("Akron Multisig Governance", function () {
         .proposeTransaction(await akron.getAddress(), addOwnerData, 0);
       await akron.connect(owner2).approveTransaction(0);
 
-      const transaction = await akron.transactions(0)
-      console.log("transaction", transaction.confirmations)
+      const transaction = await akron.transactions(0);
       await akron.connect(owner2).revokeTransactionApproval(0);
 
       const newTransaction = await akron.transactions(0);
@@ -38,20 +37,20 @@ describe("Akron Multisig Governance", function () {
     });
 
     it("should allow adding a new owner", async function () {
-        const addOwnerData = akron.interface.encodeFunctionData("addOwner", [
-          nonOwner.address,
-        ]);
-  
-        // Propose and approve adding a new owner
-        await akron
-          .connect(owner1)
-          .proposeTransaction(await akron.getAddress(), addOwnerData, 0);
-        await akron.connect(owner2).approveTransaction(0);
-        await akron.connect(owner3).approveTransaction(0);
-  
-        const isOwner = await akron.isOwner(nonOwner.address);
-        expect(isOwner).to.equal(true);
-      });
+      const addOwnerData = akron.interface.encodeFunctionData("addOwner", [
+        nonOwner.address,
+      ]);
+
+      // Propose and approve adding a new owner
+      await akron
+        .connect(owner1)
+        .proposeTransaction(await akron.getAddress(), addOwnerData, 0);
+      await akron.connect(owner2).approveTransaction(0);
+      await akron.connect(owner3).approveTransaction(0);
+
+      const isOwner = await akron.isOwner(nonOwner.address);
+      expect(isOwner).to.equal(true);
+    });
 
     it("should allow removing an owner", async function () {
       const addOwnerData = akron.interface.encodeFunctionData("addOwner", [
@@ -79,6 +78,40 @@ describe("Akron Multisig Governance", function () {
 
       const isOwner = await akron.isOwner(nonOwner.address);
       expect(isOwner).to.equal(false);
+    });
+
+    it("should allow withdrawal of contract balance", async function () {
+      await owner1.sendTransaction({
+        to: await akron.getAddress(),
+        value: ethers.parseEther("10"),
+      });
+
+      const holder1BalanceBefore = await ethers.provider.getBalance(
+        holder1.address
+      );
+      const contractBalance = await ethers.provider.getBalance(
+        await akron.getAddress()
+      );
+
+      const sewithdrawBalanceData = akron.interface.encodeFunctionData(
+        "withdrawBalance",
+        [holder1.address, contractBalance]
+      );
+
+      // Propose and approve adding a new owner
+      await akron
+        .connect(owner1)
+        .proposeTransaction(await akron.getAddress(), sewithdrawBalanceData, 0);
+      await akron.connect(owner2).approveTransaction(0);
+      await akron.connect(owner3).approveTransaction(0);
+
+      const holder1BalanceAfter = await ethers.provider.getBalance(
+        holder1.address
+      );
+
+      expect(holder1BalanceAfter).to.equal(
+        holder1BalanceBefore + contractBalance
+      );
     });
   });
 });

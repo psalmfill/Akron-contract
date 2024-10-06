@@ -105,7 +105,11 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       // Propose and approve updating the claim interval
       await akronMultiSign
         .connect(owner1)
-        .proposeTransaction(await akron.getAddress(), updateClaimIntervalData, 0);
+        .proposeTransaction(
+          await akron.getAddress(),
+          updateClaimIntervalData,
+          0
+        );
       await akronMultiSign.connect(owner2).approveTransaction(0);
       await akronMultiSign.connect(owner3).approveTransaction(0);
 
@@ -216,9 +220,6 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       const holder2BalanceBefore = await ethers.provider.getBalance(
         holder2.address
       );
-console.log(await ethers.provider.getBalance(
-  await akron.getAddress()
-))
       // Blacklist addr1
       await akronMultiSign
         .connect(owner1)
@@ -270,7 +271,6 @@ console.log(await ethers.provider.getBalance(
       const holder2BalanceAfter = await ethers.provider.getBalance(
         holder2.address
       );
-      console.log(holder2BalanceBefore, holder2BalanceAfter);
       expect(holder2BalanceAfter).to.be.above(
         holder2BalanceBefore + contractBalance / 2n
       ); // holder2 should receive full 10 ETH

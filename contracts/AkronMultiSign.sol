@@ -209,9 +209,38 @@ contract AkronMultiSign {
     }
 
     /**
+     * @dev Allows the contract itself to update the number of required confirmations.
+     * This function can only be called by the contract itself (multi-signature governance).
+     * @param newRequiredConfirmations The new number of confirmations required.
+     */
+    function setRequiredConfirmations(
+        uint newRequiredConfirmations
+    ) external onlySelf {
+        require(
+            newRequiredConfirmations >= 0 &&
+                newRequiredConfirmations <= owners.length,
+            "Invalid number of required confirmations"
+        );
+        requiredConfirmations = newRequiredConfirmations;
+    }
+
+    /**
      * @dev Allows the contract to receive ETH deposits. Emits a Deposit event with the sender and the current balance.
      */
     receive() external payable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
+    }
+
+    /**
+     * @dev Allows the contract itself to withdraw funds.
+     * This function can only be called by the contract itself (multi-signature governance).
+     * @param to The address to send the withdrawn Ether to.
+     * @param amount The amount of Ether to withdraw.
+     */
+    function withdrawBalance(address payable to, uint amount) external onlySelf {
+        require(address(this).balance >= amount, "Insufficient balance");
+
+        (bool success, ) = to.call{value: amount}("");
+        require(success, "Withdrawal failed");
     }
 }
