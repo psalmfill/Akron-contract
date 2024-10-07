@@ -63,39 +63,47 @@ contract Akron {
     }
 
     /**
-     * @dev Pauses a wallet, preventing it from receiving revenue.
-     * @param wallet The address of the wallet to pause.
+     * @dev Pauses multiple wallets, preventing them from receiving revenue.
+     * @param wallets The array of wallet addresses to pause.
      */
-    function pauseWallet(address wallet) external onlyOwner {
-        pausedWallets[wallet] = true;
-        emit WalletPaused(wallet);
+    function pauseWallets(address[] calldata wallets) external onlyOwner {
+        for (uint256 i = 0; i < wallets.length; i++) {
+            pausedWallets[wallets[i]] = true;
+            emit WalletPaused(wallets[i]);
+        }
     }
 
     /**
-     * @dev Unpauses a wallet, allowing it to receive revenue again.
-     * @param wallet The address of the wallet to unpause.
+     * @dev Unpauses multiple wallets, allowing them to receive revenue again.
+     * @param wallets The array of wallet addresses to unpause.
      */
-    function unpauseWallet(address wallet) external onlyOwner {
-        pausedWallets[wallet] = false;
-        emit WalletUnpaused(wallet);
+    function unpauseWallets(address[] calldata wallets) external onlyOwner {
+        for (uint256 i = 0; i < wallets.length; i++) {
+            pausedWallets[wallets[i]] = false;
+            emit WalletUnpaused(wallets[i]);
+        }
     }
 
     /**
-     * @dev Blacklists a wallet, permanently blocking it from receiving revenue.
-     * @param wallet The address of the wallet to blacklist.
+     * @dev Blacklists multiple wallets, permanently blocking them from receiving revenue.
+     * @param wallets The array of wallet addresses to blacklist.
      */
-    function blacklistWallet(address wallet) external onlyOwner {
-        blacklistedWallets[wallet] = true;
-        emit WalletBlacklisted(wallet);
+    function blacklistWallets(address[] calldata wallets) external onlyOwner {
+        for (uint256 i = 0; i < wallets.length; i++) {
+            blacklistedWallets[wallets[i]] = true;
+            emit WalletBlacklisted(wallets[i]);
+        }
     }
 
     /**
-     * @dev Removes a wallet from the blacklist, allowing it to receive revenue again.
-     * @param wallet The address of the wallet to unblacklist.
+     * @dev Removes multiple wallets from the blacklist, allowing them to receive revenue again.
+     * @param wallets The array of wallet addresses to unblacklist.
      */
-    function unblacklistWallet(address wallet) external onlyOwner {
-        blacklistedWallets[wallet] = false;
-        emit WalletBlacklisted(wallet);
+    function unblacklistWallets(address[] calldata wallets) external onlyOwner {
+        for (uint256 i = 0; i < wallets.length; i++) {
+            blacklistedWallets[wallets[i]] = false;
+            emit WalletBlacklisted(wallets[i]);
+        }
     }
 
     /**

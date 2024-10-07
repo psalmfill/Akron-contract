@@ -26,8 +26,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
   describe("Multisig and Governance", function () {
     it("should allow owners to propose and execute a pause wallet action", async function () {
       const pauseWalletData = akron.interface.encodeFunctionData(
-        "pauseWallet",
-        [walletToPause.address]
+        "pauseWallets",
+        [[walletToPause.address]]
       );
 
       // Propose and approve pause action by two owners
@@ -64,8 +64,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
 
     it("should allow pausing and unpausing a wallet", async function () {
       const pauseWalletData = akron.interface.encodeFunctionData(
-        "pauseWallet",
-        [walletToPause.address]
+        "pauseWallets",
+        [[walletToPause.address]]
       );
 
       // Propose and approve pausing a wallet
@@ -79,8 +79,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       expect(isPaused).to.equal(true);
 
       const unpauseWalletData = akron.interface.encodeFunctionData(
-        "unpauseWallet",
-        [walletToPause.address]
+        "unpauseWallets",
+        [[walletToPause.address]]
       );
 
       // Propose and approve unpausing the wallet
@@ -154,8 +154,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
         .connect(owner1)
         .proposeTransaction(
           await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallet", [
-            holder1.address,
+          akron.interface.encodeFunctionData("blacklistWallets", [
+            [holder1.address],
           ]),
           0
         );
@@ -175,8 +175,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
         .connect(owner1)
         .proposeTransaction(
           await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallet", [
-            holder1.address,
+          akron.interface.encodeFunctionData("blacklistWallets", [
+            [holder1.address],
           ]),
           0
         );
@@ -192,8 +192,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
         .connect(owner1)
         .proposeTransaction(
           await akron.getAddress(),
-          akron.interface.encodeFunctionData("unblacklistWallet", [
-            holder1.address,
+          akron.interface.encodeFunctionData("unblacklistWallets", [
+           [ holder1.address],
           ]),
           0
         );
@@ -225,8 +225,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
         .connect(owner1)
         .proposeTransaction(
           await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallet", [
-            holder1.address,
+          akron.interface.encodeFunctionData("blacklistWallets", [
+            [holder1.address],
           ]),
           0
         );
