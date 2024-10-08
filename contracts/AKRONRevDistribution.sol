@@ -143,7 +143,7 @@ contract AKRONRevDistribution {
                 // Skip holders with zero balances
                 if (holderBalance > 0) {
                     // Calculate the revenue share for each holder
-                    uint revenueShare = (holderBalance * totalRevenue) /
+                    uint revenueShare = (holderBalance * address(this).balance) /
                         totalSupplyAkron;
 
                     // Ensure the revenue share is valid and within the contract's balance
