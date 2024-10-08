@@ -3,21 +3,21 @@ const { ethers } = require("hardhat");
 
 describe("Akron Merged Contract with Multisig Governance", function () {
   let owner1, owner2, owner3, nonOwner, walletToPause, holder1, holder2;
-  let akron, akronMultiSign;
+  let aKRONRevDistribution, akronMultiSign;
   const initialSupply = ethers.parseEther("1000");
 
   beforeEach(async function () {
     [owner1, owner2, owner3, nonOwner, walletToPause, holder1, holder2] =
       await ethers.getSigners();
 
-    const AkronMultiSign = await ethers.getContractFactory("AkronMultiSign");
+    const AkronMultiSign = await ethers.getContractFactory("KronosMultiSig");
 
     akronMultiSign = await AkronMultiSign.deploy(
       [owner1.address, owner2.address, owner3.address],
       2
     );
-    const Akron = await ethers.getContractFactory("Akron");
-    akron = await Akron.deploy(
+    const AKRONRevDistribution = await ethers.getContractFactory("AKRONRevDistribution");
+    aKRONRevDistribution = await AKRONRevDistribution.deploy(
       await akronMultiSign.getAddress(),
       initialSupply
     ); // 2 confirmations needed
@@ -25,7 +25,7 @@ describe("Akron Merged Contract with Multisig Governance", function () {
 
   describe("Multisig and Governance", function () {
     it("should allow owners to propose and execute a pause wallet action", async function () {
-      const pauseWalletData = akron.interface.encodeFunctionData(
+      const pauseWalletData = aKRONRevDistribution.interface.encodeFunctionData(
         "pauseWallets",
         [[walletToPause.address]]
       );
@@ -33,11 +33,11 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       // Propose and approve pause action by two owners
       await akronMultiSign
         .connect(owner1)
-        .proposeTransaction(await akron.getAddress(), pauseWalletData, 0);
+        .proposeTransaction(await aKRONRevDistribution.getAddress(), pauseWalletData, 0);
       await akronMultiSign.connect(owner2).approveTransaction(0);
       await akronMultiSign.connect(owner3).approveTransaction(0);
 
-      const isPaused = await akron.pausedWallets(walletToPause.address);
+      const isPaused = await aKRONRevDistribution.pausedWallets(walletToPause.address);
       expect(isPaused).to.equal(true);
     });
 
@@ -63,7 +63,7 @@ describe("Akron Merged Contract with Multisig Governance", function () {
     // });
 
     it("should allow pausing and unpausing a wallet", async function () {
-      const pauseWalletData = akron.interface.encodeFunctionData(
+      const pauseWalletData = aKRONRevDistribution.interface.encodeFunctionData(
         "pauseWallets",
         [[walletToPause.address]]
       );
@@ -71,14 +71,14 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       // Propose and approve pausing a wallet
       await akronMultiSign
         .connect(owner1)
-        .proposeTransaction(await akron.getAddress(), pauseWalletData, 0);
+        .proposeTransaction(await aKRONRevDistribution.getAddress(), pauseWalletData, 0);
       await akronMultiSign.connect(owner2).approveTransaction(0);
       await akronMultiSign.connect(owner3).approveTransaction(0);
 
-      let isPaused = await akron.pausedWallets(walletToPause.address);
+      let isPaused = await aKRONRevDistribution.pausedWallets(walletToPause.address);
       expect(isPaused).to.equal(true);
 
-      const unpauseWalletData = akron.interface.encodeFunctionData(
+      const unpauseWalletData = aKRONRevDistribution.interface.encodeFunctionData(
         "unpauseWallets",
         [[walletToPause.address]]
       );
@@ -86,18 +86,18 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       // Propose and approve unpausing the wallet
       await akronMultiSign
         .connect(owner1)
-        .proposeTransaction(await akron.getAddress(), unpauseWalletData, 0);
+        .proposeTransaction(await aKRONRevDistribution.getAddress(), unpauseWalletData, 0);
       //   two approval
       await akronMultiSign.connect(owner2).approveTransaction(1);
       await akronMultiSign.connect(owner3).approveTransaction(1);
 
-      isPaused = await akron.pausedWallets(walletToPause.address);
+      isPaused = await aKRONRevDistribution.pausedWallets(walletToPause.address);
       expect(isPaused).to.equal(false);
     });
 
     it("should allow updating the claim interval", async function () {
       const newInterval = 3600; // 1 hour in seconds
-      const updateClaimIntervalData = akron.interface.encodeFunctionData(
+      const updateClaimIntervalData = aKRONRevDistribution.interface.encodeFunctionData(
         "updateClaimInterval",
         [newInterval]
       );
@@ -106,14 +106,14 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
+          await aKRONRevDistribution.getAddress(),
           updateClaimIntervalData,
           0
         );
       await akronMultiSign.connect(owner2).approveTransaction(0);
       await akronMultiSign.connect(owner3).approveTransaction(0);
 
-      const claimInterval = await akron.claimInterval();
+      const claimInterval = await aKRONRevDistribution.claimInterval();
       expect(claimInterval).to.equal(newInterval);
     });
 
@@ -153,8 +153,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallets", [
+          await aKRONRevDistribution.getAddress(),
+          aKRONRevDistribution.interface.encodeFunctionData("blacklistWallets", [
             [holder1.address],
           ]),
           0
@@ -165,7 +165,7 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign.connect(owner2).approveTransaction(0); // addr2 confirms and executes
 
       // Check if holder1 is blacklisted
-      const isBlacklisted = await akron.blacklistedWallets(holder1.address);
+      const isBlacklisted = await aKRONRevDistribution.blacklistedWallets(holder1.address);
       expect(isBlacklisted).to.be.true;
     });
 
@@ -174,8 +174,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallets", [
+          await aKRONRevDistribution.getAddress(),
+          aKRONRevDistribution.interface.encodeFunctionData("blacklistWallets", [
             [holder1.address],
           ]),
           0
@@ -184,15 +184,15 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign.connect(owner2).approveTransaction(0);
 
       // Confirm holder1 is blacklisted
-      let isBlacklisted = await akron.blacklistedWallets(holder1.address);
+      let isBlacklisted = await aKRONRevDistribution.blacklistedWallets(holder1.address);
       expect(isBlacklisted).to.be.true;
 
       // Propose unblacklisting holder1
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
-          akron.interface.encodeFunctionData("unblacklistWallets", [
+          await aKRONRevDistribution.getAddress(),
+          aKRONRevDistribution.interface.encodeFunctionData("unblacklistWallets", [
            [ holder1.address],
           ]),
           0
@@ -203,14 +203,14 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign.connect(owner2).approveTransaction(1);
 
       // Check if holder1 is unblacklisted
-      isBlacklisted = await akron.blacklistedWallets(holder1.address);
+      isBlacklisted = await aKRONRevDistribution.blacklistedWallets(holder1.address);
       expect(isBlacklisted).to.be.false;
     });
 
     it("Should skip blacklisted wallets during revenue distribution", async function () {
       // Sending some ETH to the contract for distribution
       await owner1.sendTransaction({
-        to: await akron.getAddress(),
+        to: await aKRONRevDistribution.getAddress(),
         value: ethers.parseEther("10"),
       });
 
@@ -224,8 +224,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
-          akron.interface.encodeFunctionData("blacklistWallets", [
+          await aKRONRevDistribution.getAddress(),
+          aKRONRevDistribution.interface.encodeFunctionData("blacklistWallets", [
             [holder1.address],
           ]),
           0
@@ -234,7 +234,7 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign.connect(owner2).approveTransaction(0);
 
       // Confirm addr1 is blacklisted
-      const isBlacklisted = await akron.blacklistedWallets(holder1.address);
+      const isBlacklisted = await aKRONRevDistribution.blacklistedWallets(holder1.address);
       expect(isBlacklisted).to.be.true;
 
       // Define holders and balances for revenue distribution
@@ -245,8 +245,8 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign
         .connect(owner1)
         .proposeTransaction(
-          await akron.getAddress(),
-          akron.interface.encodeFunctionData("distributeRevenue", [
+          await aKRONRevDistribution.getAddress(),
+          aKRONRevDistribution.interface.encodeFunctionData("distributeRevenue", [
             holders,
             balances,
           ]),
@@ -258,7 +258,7 @@ describe("Akron Merged Contract with Multisig Governance", function () {
       await akronMultiSign.connect(owner2).approveTransaction(1);
 
       const contractBalance = await ethers.provider.getBalance(
-        await akron.getAddress()
+        await aKRONRevDistribution.getAddress()
       );
 
       // Verify that holder1 did not receive any funds (as it's blacklisted)

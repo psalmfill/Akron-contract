@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract AkronMultiSign {
+contract KronosMultiSig {
     // Structure to define a transaction proposal
     struct Transaction {
         address target; // Target address to execute the transaction

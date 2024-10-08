@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Akron {
+contract AKRONRevDistribution {
     // Mapping to track paused wallets
     mapping(address => bool) public pausedWallets;
 
